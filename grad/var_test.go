@@ -74,3 +74,23 @@ func TestSigmoid(t *testing.T) {
 	assert.Equal(1.0, b.grad)
 	assert.Equal(0.24751657271185995, a.grad)
 }
+
+func TestBinaryCrossEntropy(t *testing.T) {
+	assert := assert.New(t)
+
+	a := NewVar(1.0)
+	b := NewVar(1.0)
+
+	c, error := BinaryCrossEntropy(a, b)
+
+	assert.NoError(error)
+
+	assert.Equal("bce", c.op)
+	assert.Equal(9.992007221626415e-16, c.value)
+
+	c.backward(1.0)
+
+	assert.Equal(1.0, c.grad)
+	assert.Equal(-1.000000000000001, a.grad)
+	assert.Equal(-1.000000000000001, b.grad)
+}

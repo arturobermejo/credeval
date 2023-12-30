@@ -82,3 +82,34 @@ func Sigmoid(a *Var) *Var {
 
 	return v
 }
+
+func BinaryCrossEntropy(pred, target *Var) (*Var, error) {
+	if pred.value != 0.0 && pred.value != 1.0 {
+		return nil, fmt.Errorf("pred should be 0.0 or 1.0")
+	}
+
+	if target.value != 0.0 && target.value != 1.0 {
+		return nil, fmt.Errorf("target should be 0.0 or 1.0")
+	}
+
+	epsilon := 1e-15
+
+	predNorm := math.Max(epsilon, pred.value)
+	predNorm = math.Min(1-epsilon, pred.value)
+
+	loss := -target.value*math.Log(predNorm) - (1-target.value)*math.Log(1-predNorm)
+
+	v := NewVar(loss)
+
+	v.op = "bce"
+	v.backward = func(g float64) {
+		v.grad = g
+
+		d := (-target.value/predNorm + (1-target.value)/(1-predNorm))
+
+		pred.backward(d * g)
+		target.backward(d * g)
+	}
+
+	return v, nil
+}
