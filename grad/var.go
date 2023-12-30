@@ -42,6 +42,10 @@ func (v *Var) Grad() float64 {
 	return v.grad
 }
 
+func (v *Var) Backward(g float64) {
+	v.backward(g)
+}
+
 func Sum(a, b *Var) *Var {
 	v := NewVar(a.value + b.value)
 
