@@ -86,10 +86,6 @@ func Sigmoid(a *Var) *Var {
 }
 
 func BinaryCrossEntropy(pred, target *Var) (*Var, error) {
-	if pred.value != 0.0 && pred.value != 1.0 {
-		return nil, fmt.Errorf("pred should be 0.0 or 1.0")
-	}
-
 	if target.value != 0.0 && target.value != 1.0 {
 		return nil, fmt.Errorf("target should be 0.0 or 1.0")
 	}
