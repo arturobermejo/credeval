@@ -10,15 +10,13 @@ type Var struct {
 	op       string
 	backward func(float64)
 	grad     float64
-	children []*Var
 }
 
 func NewVar(value float64) *Var {
 	v := &Var{
-		value:    value,
-		op:       "none",
-		grad:     math.NaN(),
-		children: make([]*Var, 0),
+		value: value,
+		op:    "none",
+		grad:  math.NaN(),
 	}
 
 	v.backward = func(g float64) {
