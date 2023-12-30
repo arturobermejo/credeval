@@ -20,6 +20,9 @@ func TestVar(t *testing.T) {
 
 	assert.Equal(0.1, v.Value())
 	assert.True(math.IsNaN(v.Grad()))
+
+	v.SetValue(1.0)
+	assert.Equal(1.0, v.Value())
 }
 
 func TestSum(t *testing.T) {

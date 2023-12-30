@@ -34,6 +34,10 @@ func (v *Var) Value() float64 {
 	return v.value
 }
 
+func (v *Var) SetValue(value float64) {
+	v.value = value
+}
+
 func (v *Var) Grad() float64 {
 	return v.grad
 }
