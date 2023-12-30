@@ -53,3 +53,32 @@ func Sum(a, b *Var) *Var {
 
 	return v
 }
+
+func Mul(a, b *Var) *Var {
+	v := NewVar(a.value * b.value)
+
+	v.op = "mul"
+	v.backward = func(g float64) {
+		v.grad = g
+
+		a.backward(b.value * g)
+		b.backward(a.value * g)
+	}
+
+	return v
+}
+
+func Sigmoid(a *Var) *Var {
+	value := 1.0 / (1.0 + math.Exp(-a.value))
+
+	v := NewVar(value)
+
+	v.op = "sigmoid"
+	v.backward = func(g float64) {
+		v.grad = g
+
+		a.backward(value * (1 - value) * g)
+	}
+
+	return v
+}

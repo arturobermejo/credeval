@@ -36,3 +36,29 @@ func TestSum(t *testing.T) {
 	assert.Equal(1.0, a.Grad())
 	assert.Equal(1.0, b.Grad())
 }
+
+func TestMul(t *testing.T) {
+	assert := assert.New(t)
+
+	a := NewVar(0.2)
+	b := NewVar(0.3)
+
+	c := Mul(a, b)
+	c.backward(1.0)
+
+	assert.Equal(1.0, c.Grad())
+	assert.Equal(0.3, a.Grad())
+	assert.Equal(0.2, b.Grad())
+}
+
+func TestSigmoid(t *testing.T) {
+	assert := assert.New(t)
+
+	a := NewVar(0.2)
+
+	b := Sigmoid(a)
+	b.backward(1.0)
+
+	assert.Equal(1.0, b.Grad())
+	assert.Equal(0.24751657271185995, a.Grad())
+}
