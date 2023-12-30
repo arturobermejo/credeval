@@ -1,6 +1,9 @@
 package grad
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type Var struct {
 	value    float64
@@ -15,7 +18,7 @@ func NewVar(v float64) *Var {
 		value:    v,
 		op:       "none",
 		backward: func() {},
-		grad:     1.0,
+		grad:     math.NaN(),
 		children: make([]*Var, 0),
 	}
 }
