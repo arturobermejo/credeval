@@ -8,19 +8,24 @@ import (
 type Var struct {
 	value    float64
 	op       string
-	backward func()
+	backward func(float64)
 	grad     float64
 	children []*Var
 }
 
-func NewVar(v float64) *Var {
-	return &Var{
-		value:    v,
+func NewVar(value float64) *Var {
+	v := &Var{
+		value:    value,
 		op:       "none",
-		backward: func() {},
 		grad:     math.NaN(),
 		children: make([]*Var, 0),
 	}
+
+	v.backward = func(g float64) {
+		v.grad = g
+	}
+
+	return v
 }
 
 func (v *Var) String() string {
@@ -33,4 +38,18 @@ func (v *Var) Value() float64 {
 
 func (v *Var) Grad() float64 {
 	return v.grad
+}
+
+func Sum(a, b *Var) *Var {
+	v := NewVar(a.value + b.value)
+
+	v.op = "sum"
+	v.backward = func(g float64) {
+		v.grad = g
+
+		a.backward(1.0 * g)
+		b.backward(1.0 * g)
+	}
+
+	return v
 }
