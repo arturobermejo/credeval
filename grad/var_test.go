@@ -113,3 +113,15 @@ func TestBinaryCrossEntropy(t *testing.T) {
 	assert.Equal(-1.000000000000001, a.grad)
 	assert.Equal(-1.000000000000001, b.grad)
 }
+
+func TestBinaryCrossEntropyError(t *testing.T) {
+	assert := assert.New(t)
+
+	a := NewVar(1.0)
+	b := NewVar(5.0)
+
+	c, error := BinaryCrossEntropy(a, b)
+
+	assert.Nil(c)
+	assert.Error(error)
+}
