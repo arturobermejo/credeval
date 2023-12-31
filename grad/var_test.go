@@ -20,6 +20,12 @@ func TestVar(t *testing.T) {
 
 	assert.Equal(0.1, v.Value())
 	assert.True(math.IsNaN(v.Grad()))
+}
+
+func TestVarSetValue(t *testing.T) {
+	assert := assert.New(t)
+
+	v := NewVar(0.1)
 
 	v.SetValue(1.0)
 	assert.Equal(1.0, v.Value())
