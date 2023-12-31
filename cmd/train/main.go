@@ -64,7 +64,8 @@ func scaleMinMax(col []any) error {
 }
 
 func main() {
-	filename := flag.String("f", "dataset.csv", "dataset csv file")
+	filename := flag.String("f", "dataset/dataset.csv", "dataset csv file")
+
 	flag.Parse()
 
 	file, err := os.Open(*filename)
@@ -98,7 +99,7 @@ func main() {
 
 	params := []*grad.Var{w, b}
 
-	epochs := 100000
+	epochs := 50000
 	learningRate := 0.01
 
 	for epoch := 1; epoch <= epochs; epoch++ {
@@ -140,4 +141,27 @@ func main() {
 
 		fmt.Printf("Epoch: %v/%v, loss: %.4f, acc: %.4f\n", epoch, epochs, avgLoss, avgAcc)
 	}
+
+	xTest := df.Data[0][trainSize+1:]
+	yTest := df.Data[1][trainSize+1:]
+
+	testSize := len(xTest)
+
+	avgAcc := 0.0
+
+	for i := 0; i < testSize; i++ {
+		x := grad.NewVar(xTest[i].(float64))
+		y := grad.NewVar(yTest[i].(float64))
+
+		xw := grad.Mul(x, w)
+		r := grad.Sum(xw, b)
+
+		prob := grad.Sigmoid(r)
+
+		if math.Round(prob.Value()) == y.Value() {
+			avgAcc += 1.0 / float64(testSize)
+		}
+	}
+
+	fmt.Printf("Accuracy on the test set: %.4f\n", avgAcc)
 }
