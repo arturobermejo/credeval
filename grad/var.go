@@ -42,6 +42,10 @@ func (v *Var) Grad() float64 {
 	return v.grad
 }
 
+func (v *Var) ZeroGrad() {
+	v.grad = 0.0
+}
+
 func (v *Var) Backward(g float64) {
 	v.backward(g)
 }

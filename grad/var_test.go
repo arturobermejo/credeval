@@ -31,6 +31,17 @@ func TestVarSetValue(t *testing.T) {
 	assert.Equal(1.0, v.Value())
 }
 
+func TestVarZeroGrad(t *testing.T) {
+	assert := assert.New(t)
+
+	v := NewVar(0.1)
+
+	v.backward(5.0)
+	v.ZeroGrad()
+
+	assert.Equal(0.0, v.grad)
+}
+
 func TestSum(t *testing.T) {
 	assert := assert.New(t)
 

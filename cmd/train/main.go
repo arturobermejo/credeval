@@ -137,6 +137,7 @@ func main() {
 		// update params
 		for i, param := range params {
 			param.SetValue(param.Value() - learningRate*avgGrad[i])
+			param.ZeroGrad()
 		}
 
 		fmt.Printf("Epoch: %v/%v, loss: %.4f, acc: %.4f\n", epoch, epochs, avgLoss, avgAcc)
