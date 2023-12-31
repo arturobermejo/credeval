@@ -2,13 +2,16 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"math"
+	"math/rand"
 	"os"
 	"strconv"
 
 	"github.com/arturobermejo/credeval/dataframe"
+	"github.com/arturobermejo/credeval/grad"
 )
 
 func parseFloat64(col []any) error {
@@ -83,5 +86,58 @@ func main() {
 	err = df.Transform(1, parseFloat64)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	trainSize := int(math.Round(0.8 * float64(len(df.Data[0]))))
+
+	xTrain := df.Data[0][1 : trainSize+1]
+	yTrain := df.Data[1][1 : trainSize+1]
+
+	w := grad.NewVar(rand.Float64())
+	b := grad.NewVar(rand.Float64())
+
+	params := []*grad.Var{w, b}
+
+	epochs := 100000
+	learningRate := 0.01
+
+	for epoch := 1; epoch <= epochs; epoch++ {
+		avgGrad := make([]float64, len(params))
+		avgLoss := 0.0
+		avgAcc := 0.0
+
+		for i := 0; i < trainSize; i++ {
+			x := grad.NewVar(xTrain[i].(float64))
+			y := grad.NewVar(yTrain[i].(float64))
+
+			xw := grad.Mul(x, w)
+			r := grad.Sum(xw, b)
+
+			prob := grad.Sigmoid(r)
+
+			loss, err := grad.BinaryCrossEntropy(prob, y)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			loss.Backward(1.0)
+
+			for i, param := range params {
+				avgGrad[i] += param.Grad() / float64(trainSize)
+			}
+
+			avgLoss += loss.Value() / float64(trainSize)
+
+			if math.Round(prob.Value()) == y.Value() {
+				avgAcc += 1.0 / float64(trainSize)
+			}
+		}
+
+		// update params
+		for i, param := range params {
+			param.SetValue(param.Value() - learningRate*avgGrad[i])
+		}
+
+		fmt.Printf("Epoch: %v/%v, loss: %.4f, acc: %.4f\n", epoch, epochs, avgLoss, avgAcc)
 	}
 }
