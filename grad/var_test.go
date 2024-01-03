@@ -36,7 +36,7 @@ func TestVarZeroGrad(t *testing.T) {
 
 	v := NewVar(0.1)
 
-	v.backward(5.0)
+	v.SetGrad(5.0)
 	v.ZeroGrad()
 
 	assert.Equal(0.0, v.grad)
@@ -53,7 +53,7 @@ func TestSum(t *testing.T) {
 	assert.Equal(1.0, c.value)
 	assert.Equal("sum", c.op)
 
-	c.backward(1.0)
+	c.SetGrad(1.0)
 
 	assert.Equal(1.0, c.grad)
 	assert.Equal(1.0, a.grad)
@@ -71,7 +71,7 @@ func TestMul(t *testing.T) {
 	assert.Equal(0.06, c.value)
 	assert.Equal("mul", c.op)
 
-	c.backward(1.0)
+	c.SetGrad(1.0)
 
 	assert.Equal(1.0, c.grad)
 	assert.Equal(0.3, a.grad)
@@ -88,7 +88,7 @@ func TestSigmoid(t *testing.T) {
 	assert.Equal(0.549833997312478, b.value)
 	assert.Equal("sigmoid", b.op)
 
-	b.backward(1.0)
+	b.SetGrad(1.0)
 
 	assert.Equal(1.0, b.grad)
 	assert.Equal(0.24751657271185995, a.grad)
@@ -107,7 +107,7 @@ func TestBinaryCrossEntropy(t *testing.T) {
 	assert.Equal("bce", c.op)
 	assert.Equal(9.992007221626415e-16, c.value)
 
-	c.backward(1.0)
+	c.SetGrad(1.0)
 
 	assert.Equal(1.0, c.grad)
 	assert.Equal(-1.000000000000001, a.grad)

@@ -121,7 +121,7 @@ func main() {
 				log.Fatal(err)
 			}
 
-			loss.Backward(1.0)
+			loss.SetGrad(1.0)
 
 			for i, param := range params {
 				avgGrad[i] += param.Grad() / float64(trainSize)

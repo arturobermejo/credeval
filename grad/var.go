@@ -8,22 +8,16 @@ import (
 type Var struct {
 	value    float64
 	op       string
-	backward func(float64)
 	grad     float64
+	children map[*Var]float64
 }
 
 func NewVar(value float64) *Var {
-	v := &Var{
+	return &Var{
 		value: value,
 		op:    "none",
 		grad:  math.NaN(),
 	}
-
-	v.backward = func(g float64) {
-		v.grad = g
-	}
-
-	return v
 }
 
 func (v *Var) String() string {
@@ -42,55 +36,53 @@ func (v *Var) Grad() float64 {
 	return v.grad
 }
 
+func (v *Var) SetGrad(g float64) {
+	v.grad = g
+
+	for ch, derivative := range v.children {
+		ch.SetGrad(g * derivative)
+	}
+}
+
 func (v *Var) ZeroGrad() {
 	v.grad = 0.0
 }
 
-func (v *Var) Backward(g float64) {
-	v.backward(g)
-}
+func Sum(x, y *Var) *Var {
+	n := NewVar(x.value + y.value)
+	n.op = "sum"
 
-func Sum(a, b *Var) *Var {
-	v := NewVar(a.value + b.value)
-
-	v.op = "sum"
-	v.backward = func(g float64) {
-		v.grad = g
-
-		a.backward(1.0 * g)
-		b.backward(1.0 * g)
+	n.children = map[*Var]float64{
+		x: 1,
+		y: 1,
 	}
 
-	return v
+	return n
 }
 
-func Mul(a, b *Var) *Var {
-	v := NewVar(a.value * b.value)
+func Mul(x, y *Var) *Var {
+	n := NewVar(x.value * y.value)
+	n.op = "mul"
 
-	v.op = "mul"
-	v.backward = func(g float64) {
-		v.grad = g
-
-		a.backward(b.value * g)
-		b.backward(a.value * g)
+	n.children = map[*Var]float64{
+		x: y.value,
+		y: x.value,
 	}
 
-	return v
+	return n
 }
 
-func Sigmoid(a *Var) *Var {
-	value := 1.0 / (1.0 + math.Exp(-a.value))
+func Sigmoid(x *Var) *Var {
+	value := 1.0 / (1.0 + math.Exp(-x.value))
 
-	v := NewVar(value)
+	n := NewVar(value)
+	n.op = "sigmoid"
 
-	v.op = "sigmoid"
-	v.backward = func(g float64) {
-		v.grad = g
-
-		a.backward(value * (1 - value) * g)
+	n.children = map[*Var]float64{
+		x: value * (1 - value),
 	}
 
-	return v
+	return n
 }
 
 func BinaryCrossEntropy(pred, target *Var) (*Var, error) {
@@ -105,17 +97,14 @@ func BinaryCrossEntropy(pred, target *Var) (*Var, error) {
 
 	loss := -target.value*math.Log(predNorm) - (1-target.value)*math.Log(1-predNorm)
 
-	v := NewVar(loss)
+	n := NewVar(loss)
+	n.op = "bce"
 
-	v.op = "bce"
-	v.backward = func(g float64) {
-		v.grad = g
-
-		d := (-target.value/predNorm + (1-target.value)/(1-predNorm))
-
-		pred.backward(d * g)
-		target.backward(d * g)
+	d := (-target.value/predNorm + (1-target.value)/(1-predNorm))
+	n.children = map[*Var]float64{
+		pred:   d,
+		target: d,
 	}
 
-	return v, nil
+	return n, nil
 }
